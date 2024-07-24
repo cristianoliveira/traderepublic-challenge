@@ -11,8 +11,7 @@
       in {
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
-            nodejs
-            (yarn.override { nodejs = nodejs; })
+            nodejs_20 # 20
 
             # Image building 
             docker
