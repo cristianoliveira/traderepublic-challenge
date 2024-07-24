@@ -1,0 +1,24 @@
+{
+  "name": "trade-republic-challenge",
+  "private": true,
+  "version": "0.1.1",
+  "scripts": {
+    "dev": "concurrently \"node server.mjs\" \"vite\"",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "concurrently \"node server.mjs\" \"vite preview\"",
+    "test": "echo \n\nReplace this command with your own test runner.\n\n"
+  },
+  "dependencies": {
+    "vue": "^3.2.41"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.5",
+    "@vitejs/plugin-vue": "^3.1.2",
+    "concurrently": "^7.5.0",
+    "sass": "^1.55.0",
+    "typescript": "^4.8.4",
+    "vite": "^3.1.8",
+    "vue-tsc": "^1.0.9",
+    "ws": "^8.10.0"
+  }
+}
