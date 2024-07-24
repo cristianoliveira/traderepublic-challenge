@@ -11,8 +11,12 @@
       in {
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
-            pkgs.nodejs
-            (pkgs.yarn.override { nodejs = pkgs.nodejs; })
+            nodejs
+            (yarn.override { nodejs = nodejs; })
+
+            # Docker 
+            docker
+            docker-compose
           ];
         };
     });
