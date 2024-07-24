@@ -4,7 +4,7 @@
   "version": "0.1.1",
   "scripts": {
     "start": "node server.mjs",
-    "dev": "node server.mjs",
-    "test": "echo no-test"
+    "test": "echo no-test",
+    "test-ws": "websocat ws://localhost:8425"
   }
 }

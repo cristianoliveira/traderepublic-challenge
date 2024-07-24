@@ -13,6 +13,8 @@
           packages = with pkgs; [
             nodejs_20 # 20
 
+            websocat # Websocket client
+
             # Image building 
             docker
             docker-compose

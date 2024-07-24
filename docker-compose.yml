@@ -12,3 +12,4 @@ services:
       - "8425:8425"
     volumes:
       - ./server:/app
+    restart: on-failure
