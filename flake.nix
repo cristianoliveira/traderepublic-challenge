@@ -14,7 +14,7 @@
             nodejs
             (yarn.override { nodejs = nodejs; })
 
-            # Docker 
+            # Image building 
             docker
             docker-compose
           ];

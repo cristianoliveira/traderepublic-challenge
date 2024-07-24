@@ -1,22 +1,14 @@
 services:
-  todos-app:
+  app:
     build: app
     ports:
       - "7878:7878"
     volumes:
       - ./app:/app
 
-  # chat-app:
-  #   build: services/chat
-  #   ports:
-  #     - "4002:4002"
-  #   volumes:
-  #     - ./services/chat/src:/app/src
-  #
-  # news-app:
-  #   build: services/news
-  #   ports:
-  #     - "4003:4003" 
-  #   volumes:
-  #     - ./services/news:/app 
-
+  server:
+    build: server
+    ports:
+      - "8425:8425"
+    volumes:
+      - ./server:/app

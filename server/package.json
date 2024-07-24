@@ -1,0 +1,10 @@
+{
+  "name": "trade-republic-challenge",
+  "private": true,
+  "version": "0.1.1",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs",
+    "test": "echo no-test"
+  }
+}
