@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { HomePage } from './pages/home';
 
+import { ERRORS } from '../src/hooks/useWatchList';
+
 
 test.describe('The Tradewishes app', () => {
   test('it has app descriptions and titles', async ({ page }) => {
@@ -54,28 +56,20 @@ test.describe('The Tradewishes app', () => {
       await expect(homePage.watchListItems).toHaveCount(1);
       await expect(homePage.watchList).toContainText("US0378331005");
 
-      await expect(homePage.form.errorText).toContainText("ISIN was not added because it already exists");
+      await expect(homePage.form.errorText).toContainText(ERRORS.duplicated);
     });
 
-  // TODO implement this test
-  test.skip('As a user, I should not be able to subscribe to an empty or invalid ISIN.' , async ({ page }) => {
+  test('As a user, I should not be able to subscribe to an empty or invalid ISIN.' , async ({ page }) => {
       const homePage = new HomePage(page);
       await homePage.goto();
 
       await expect(homePage.header).toContainText("Tradewishes");
       await expect(homePage.form.ISINInput).toBeVisible();
 
-      await homePage.form.ISINInput.fill("US0378331005");
+      await homePage.form.ISINInput.fill("");
       await homePage.form.addButton.click();
 
-      await homePage.form.ISINInput.fill("US0378331005");
-      await homePage.form.addButton.click();
-      // TODO: clean up the form after submission
-      await expect(homePage.form.ISINInput).toHaveValue("");
-
-      await expect(homePage.watchListItems).toHaveCount(1);
-      await expect(homePage.watchList).toContainText("US0378331005");
-
-      await expect(homePage.form.errorText).toContainText("ISIN was not added because it already exists");
+      await expect(homePage.watchListItems).toHaveCount(0);
+      await expect(homePage.form.errorText).toContainText(ERRORS.empty);
     });
 });

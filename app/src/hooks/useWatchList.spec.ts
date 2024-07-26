@@ -55,4 +55,15 @@ describe('useWatchList', () => {
       expect(result.current?.items).toHaveLength(0);
     });
   });
+
+  it('does not allow removing non-existing ISINs', () => {
+    const { result } = renderHook(() => useWatchList());
+
+    act(() => {
+      const err = result.current?.add("");
+      expect(err).toBe('empty');
+    });
+
+    expect(result.current?.items).toHaveLength(0);
+  });
 });
