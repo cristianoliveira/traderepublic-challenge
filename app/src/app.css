@@ -6,7 +6,7 @@
 }
 
 .logo {
-  height: 6em;
+  width: 10em;
   padding: 1.5em;
 }
 .logo:hover {
@@ -22,4 +22,34 @@
 
 .read-the-docs {
   color: #888;
+}
+
+main {
+  flex: 1;
+  padding: 20px;
+  width: 100%;
+  max-width: 600px;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+input[type="text"] {
+    padding: 10px;
+    font-size: 16px;
+}
+
+button {
+    padding: 10px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
 }

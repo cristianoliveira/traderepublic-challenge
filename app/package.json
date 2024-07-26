@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "tc": "tsc -b",
     "test": "vitest run",
-    "lint": "eslint '{src,tests}/**/*.{ts,tsx}'"
+    "lint": "eslint '{src,tests}/**/*.{ts,tsx}'",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "preact": "^10.22.1"

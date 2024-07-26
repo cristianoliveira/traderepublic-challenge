@@ -5,10 +5,11 @@ FROM node:20-alpine
 WORKDIR /usr/src/app
 
 # Install app dependencies
+COPY .npmrc ./
 COPY package.json ./
 COPY package-lock.json ./
 
-RUN npm install --legacy-peer-deps
+RUN npm install
 
 # Bundle app source
 COPY . .

@@ -1,15 +1,17 @@
 services:
   app:
     build: app
+    environment:
+      PORT: "7878"
     ports:
       - "7878:7878"
     volumes:
-      - ./app:/app
+      - ./app/src:/usr/src/app/src
 
   server:
     build: server
     ports:
       - "8425:8425"
     volumes:
-      - ./server:/app
+      - ./server:/usr/src/app
     restart: on-failure
