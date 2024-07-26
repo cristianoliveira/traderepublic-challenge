@@ -10,14 +10,14 @@ describe('useWatchList', () => {
 
       act(() => {
         const err = result.current?.add("US0378331005");
-        expect(err).toBe('');
+        expect(err).toBeFalsy();
       });
 
       expect(result.current?.items).toHaveLength(1);
 
       act(() => {
         const err = result.current?.add("US0378331006");
-        expect(err).toBe('');
+        expect(err).toBe('invalid');
       });
     });
 
@@ -26,7 +26,7 @@ describe('useWatchList', () => {
 
       act(() => {
         const err = result.current?.add("US0378331005");
-        expect(err).toBe('');
+        expect(err).toBeFalsy();
       });
       expect(result.current?.items).toHaveLength(1);
 
@@ -44,13 +44,13 @@ describe('useWatchList', () => {
 
       act(() => {
         const err = result.current?.add("US0378331005");
-        expect(err).toBe('');
+        expect(err).toBeFalsy();
       });
       expect(result.current?.items).toHaveLength(1);
 
       act(() => {
         const err = result.current?.remove("US0378331005");
-        expect(err).toBe('');
+        expect(err).toBeFalsy();
       });
       expect(result.current?.items).toHaveLength(0);
     });

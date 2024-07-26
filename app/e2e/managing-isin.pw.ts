@@ -71,5 +71,15 @@ test.describe('The Tradewishes app', () => {
 
       await expect(homePage.watchListItems).toHaveCount(0);
       await expect(homePage.form.errorText).toContainText(ERRORS.empty);
+
+      await homePage.form.ISINInput.fill("US037833");
+      await homePage.form.addButton.click();
+      await expect(homePage.form.errorText).toContainText(ERRORS.invalid);
+
+      await homePage.form.ISINInput.fill("US0378331006");
+      await homePage.form.addButton.click();
+      await expect(homePage.form.errorText).toContainText(ERRORS.invalid);
+
+      await expect(homePage.watchListItems).toHaveCount(0);
     });
 });

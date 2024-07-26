@@ -1,6 +1,7 @@
 import { useState } from 'preact/hooks'
+import { validateISIN } from '../modules/isin';
 
-type WatchErrors = 'duplicated' | 'empty' | '';
+type WatchErrors = 'duplicated' | 'empty' | 'invalid' | '';
 type WatchListHook = {
   /**
    * List of ISINs
@@ -35,6 +36,10 @@ export const useWatchList = (): WatchListHook => {
         return 'duplicated';
       }
 
+      if (!validateISIN(isin)) {
+        return 'invalid';
+      }
+
       setItem((prev) => [...prev, isin])
 
       return '';
@@ -43,6 +48,10 @@ export const useWatchList = (): WatchListHook => {
     remove: (isin: string) => {
       if (!isin) {
         return 'empty';
+      }
+
+      if (!validateISIN(isin)) {
+        return 'invalid';
       }
 
       setItem((prev) => prev.filter((item) => item !== isin))
@@ -55,6 +64,7 @@ export const useWatchList = (): WatchListHook => {
 export const ERRORS: Record<WatchErrors, string> = {
   duplicated: 'ISIN was not added because it already exists',
   empty: 'ISIN is required',
+  invalid: 'ISIN is invalid',
   '': '',
 }
 
