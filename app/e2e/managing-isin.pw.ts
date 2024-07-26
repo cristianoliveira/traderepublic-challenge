@@ -56,4 +56,26 @@ test.describe('The Tradewishes app', () => {
 
       await expect(homePage.form.errorText).toContainText("ISIN was not added because it already exists");
     });
+
+  // TODO implement this test
+  test.skip('As a user, I should not be able to subscribe to an empty or invalid ISIN.' , async ({ page }) => {
+      const homePage = new HomePage(page);
+      await homePage.goto();
+
+      await expect(homePage.header).toContainText("Tradewishes");
+      await expect(homePage.form.ISINInput).toBeVisible();
+
+      await homePage.form.ISINInput.fill("US0378331005");
+      await homePage.form.addButton.click();
+
+      await homePage.form.ISINInput.fill("US0378331005");
+      await homePage.form.addButton.click();
+      // TODO: clean up the form after submission
+      await expect(homePage.form.ISINInput).toHaveValue("");
+
+      await expect(homePage.watchListItems).toHaveCount(1);
+      await expect(homePage.watchList).toContainText("US0378331005");
+
+      await expect(homePage.form.errorText).toContainText("ISIN was not added because it already exists");
+    });
 });

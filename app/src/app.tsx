@@ -1,32 +1,13 @@
 import { useRef, useState } from 'preact/hooks'
 import trLogo from './assets/logo.svg'
 import './app.css'
+import { useWatchList, ERRORS } from './hooks/useWatchList'
 
 type WatchItem = {
   name: string;
   price: string;
   percentage: string;
 };
-
-type WatchListHook = {
-  /**
-   * List of ISINs
-   */
-  items: string[];
-  /**
-   * Add an ISIN to the watch list
-   * @param isin ISIN code
-   * @returns true if the ISIN was added, false if it already exists
-   */
-  add: (isin: string) => boolean;
-  /**
-   * Remove an ISIN from the watch list
-   * @param isin ISIN code
-   * @returns true if the ISIN was removed, false if it does not exist
-   */
-  remove: (isin: string) => boolean;
-}
-
 
 const isinMap: Record<string, WatchItem> = {
   'US0378331005': {
@@ -52,32 +33,6 @@ const WatchListItem = ({ isin }: { isin: string }) => {
   );
 }
 
-const useWatchList = (): WatchListHook => {
-  const [items, setItem] = useState<string[]>([]);
-
-  return {
-    items,
-
-    add: (isin: string) => {
-      if (items.includes(isin)) {
-        return false;
-      }
-
-      setItem((prev) => [...prev, isin])
-
-      return true;
-    },
-
-    remove: (isin: string) => {
-      const itemToRemove = items.find((item) => item === isin)
-
-      setItem((prev) => prev.filter((item) => item !== isin))
-
-      return !!itemToRemove
-    },
-  };
-}
-
 export function App() {
   const formRef = useRef<HTMLFormElement>(null)
   const watchList = useWatchList();
@@ -88,8 +43,8 @@ export function App() {
     const formData = new FormData(e.target as HTMLFormElement);
 
     const value = formData.get('isin') as string;
-    const hasAddedIsin = watchList.add(value)
-    setError(!hasAddedIsin ? 'ISIN was not added because it already exists' : undefined)
+    const error = watchList.add(value)
+    setError(ERRORS[error])
 
     formRef.current!.reset();
   }
