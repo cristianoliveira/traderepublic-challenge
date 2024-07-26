@@ -8,6 +8,26 @@ type WatchItem = {
   percentage: string;
 };
 
+type WatchListHook = {
+  /**
+   * List of ISINs
+   */
+  items: string[];
+  /**
+   * Add an ISIN to the watch list
+   * @param isin ISIN code
+   * @returns true if the ISIN was added, false if it already exists
+   */
+  add: (isin: string) => boolean;
+  /**
+   * Remove an ISIN from the watch list
+   * @param isin ISIN code
+   * @returns true if the ISIN was removed, false if it does not exist
+   */
+  remove: (isin: string) => boolean;
+}
+
+
 const isinMap: Record<string, WatchItem> = {
   'US0378331005': {
     name: 'US0378331005',
@@ -32,26 +52,44 @@ const WatchListItem = ({ isin }: { isin: string }) => {
   );
 }
 
-const useWatchList = () => {
+const useWatchList = (): WatchListHook => {
   const [items, setItem] = useState<string[]>([]);
 
   return {
     items,
-    add: (isin: string) => setItem((prev) => [...prev, isin]),
-    remove: (isin: string) => setItem((prev) => prev.filter((item) => item !== isin)),
+
+    add: (isin: string) => {
+      if (items.includes(isin)) {
+        return false;
+      }
+
+      setItem((prev) => [...prev, isin])
+
+      return true;
+    },
+
+    remove: (isin: string) => {
+      const itemToRemove = items.find((item) => item === isin)
+
+      setItem((prev) => prev.filter((item) => item !== isin))
+
+      return !!itemToRemove
+    },
   };
 }
 
 export function App() {
   const formRef = useRef<HTMLFormElement>(null)
   const watchList = useWatchList();
+  const [error, setError] = useState<string>();
 
   const onSubmit = (e: Event) => {
     e.preventDefault()
     const formData = new FormData(e.target as HTMLFormElement);
 
     const value = formData.get('isin') as string;
-    watchList.add(value)
+    const hasAddedIsin = watchList.add(value)
+    setError(!hasAddedIsin ? 'ISIN was not added because it already exists' : undefined)
 
     formRef.current!.reset();
   }
@@ -69,8 +107,8 @@ export function App() {
         <form ref={formRef} id="isin-form" onSubmit={onSubmit}>
           <input type="text" name="isin" placeholder="Enter ISIN" />
           <button type="submit">Add to Watchlist</button>
+          {error && <span data-testid="isin-error" class="form-error">{error}</span>}
         </form>
-        <div class="watchlist" id="watchlist"></div>
       </main>
 
       <section>
@@ -87,8 +125,8 @@ export function App() {
               </tr>
             </thead>
             <tbody data-testid="watch-list">
-              {watchList.items.map((item) => (
-                <WatchListItem key={item} isin={item} />
+              {watchList.items.map((isin) => (
+                <WatchListItem key={isin} isin={isin} />
               ))}
             </tbody>
           </table>

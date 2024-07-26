@@ -10,6 +10,7 @@ export class HomePage {
   readonly form: {
     readonly ISINInput: Locator;
     readonly addButton: Locator;
+    readonly errorText: Locator;
   };
 
   // Watch list
@@ -26,6 +27,7 @@ export class HomePage {
     this.form = {
       ISINInput: page.getByPlaceholder('Enter ISIN'),
       addButton: page.locator('button', { hasText: 'Add to Watchlist' }),
+      errorText: page.locator('[data-testid="isin-error"]'),
     }
 
     // Get by data-testid="watch-list"

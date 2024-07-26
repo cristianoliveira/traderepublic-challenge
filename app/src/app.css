@@ -93,3 +93,7 @@ table {
   color: white;
   font-weight: bold;
 }
+
+.form-error {
+  color: red;
+}
