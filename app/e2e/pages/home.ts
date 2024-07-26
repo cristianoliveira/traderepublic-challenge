@@ -14,6 +14,7 @@ export class HomePage {
 
   // Watch list
   readonly watchList: Locator;
+  readonly watchListItems: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -29,6 +30,7 @@ export class HomePage {
 
     // Get by data-testid="watch-list"
     this.watchList = page.locator('[data-testid="watch-list"]');
+    this.watchListItems = this.watchList.locator('tr');
   }
 
   async goto() {

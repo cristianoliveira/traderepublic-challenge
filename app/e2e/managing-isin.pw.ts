@@ -28,9 +28,9 @@ test.describe('The Tradewishes app', () => {
       await expect(homePage.form.ISINInput).toHaveValue("US38259P5089");
       await homePage.form.addButton.click();
       // TODO: clean up the form after submission
-      // await expect(homePage.form.ISINInput).toHaveValue("");
+      await expect(homePage.form.ISINInput).toHaveValue("");
 
-      await expect(homePage.watchList.locator('tr')).toHaveCount(2);
+      await expect(homePage.watchListItems).toHaveCount(2);
       await expect(homePage.watchList).toContainText("US0378331005");
       await expect(homePage.watchList).toContainText("US38259P5089");
     });

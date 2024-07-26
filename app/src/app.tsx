@@ -1,10 +1,59 @@
+import { useRef, useState } from 'preact/hooks'
 import trLogo from './assets/logo.svg'
 import './app.css'
 
+type WatchItem = {
+  name: string;
+  price: string;
+  percentage: string;
+};
+
+const isinMap: Record<string, WatchItem> = {
+  'US0378331005': {
+    name: 'US0378331005',
+    price: '€1,083.60',
+    percentage: '3.08%',
+  },
+  'US38259P5089': {
+    name: 'US38259P5089',
+    price: '$259.99',
+    percentage: '2.43%',
+  },
+};
+
+const WatchListItem = ({ isin }: { isin: string }) => {
+  const item = isinMap[isin];
+  return (
+    <tr class="mover">
+      <td class="name">{item.name}</td>
+      <td class="price">{item.price}</td>
+      <td class="percentage">{item.percentage}</td>
+    </tr>
+  );
+}
+
+const useWatchList = () => {
+  const [items, setItem] = useState<string[]>([]);
+
+  return {
+    items,
+    add: (isin: string) => setItem((prev) => [...prev, isin]),
+    remove: (isin: string) => setItem((prev) => prev.filter((item) => item !== isin)),
+  };
+}
+
 export function App() {
+  const formRef = useRef<HTMLFormElement>(null)
+  const watchList = useWatchList();
+
   const onSubmit = (e: Event) => {
     e.preventDefault()
-    console.log('@@@@@@ e: ', e);
+    const formData = new FormData(e.target as HTMLFormElement);
+
+    const value = formData.get('isin') as string;
+    watchList.add(value)
+
+    formRef.current!.reset();
   }
   return (
     <>
@@ -17,8 +66,8 @@ export function App() {
       <p>Keep track of your prefered ISIN performance</p>
 
       <main>
-        <form id="isin-form" onSubmit={onSubmit}>
-          <input type="text" id="isin-input" placeholder="Enter ISIN" />
+        <form ref={formRef} id="isin-form" onSubmit={onSubmit}>
+          <input type="text" name="isin" placeholder="Enter ISIN" />
           <button type="submit">Add to Watchlist</button>
         </form>
         <div class="watchlist" id="watchlist"></div>
@@ -38,16 +87,9 @@ export function App() {
               </tr>
             </thead>
             <tbody data-testid="watch-list">
-              <tr class="mover">
-                <td class="name">US0378331005</td>
-                <td class="price">€1,083.60</td>
-                <td class="percentage">3.08%</td>
-              </tr>
-              <tr class="mover">
-                <td class="name">US38259P5089</td>
-                <td class="price">$259.99</td>
-                <td class="percentage">2.43%</td>
-              </tr>
+              {watchList.items.map((item) => (
+                <WatchListItem key={item} isin={item} />
+              ))}
             </tbody>
           </table>
         </div>
