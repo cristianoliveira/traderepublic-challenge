@@ -12,18 +12,26 @@ test.describe('The Tradewishes app', () => {
     await expect(homePage.footer).toBeVisible();
   });
 
-  test('As a user, I should be able to submit an ISIN and ...', async ({ page }) => {
-    const homePage = new HomePage(page);
-    await homePage.goto();
+  test('As a user, I should be able to submit an ISIN' +
+    ' and it should be added to my watch list.', async ({ page }) => {
+      const homePage = new HomePage(page);
+      await homePage.goto();
 
-    await expect(homePage.header).toContainText("Tradewishes");
-    await expect(homePage.form.ISINInput).toBeVisible();
-  });
+      await expect(homePage.header).toContainText("Tradewishes");
+      await expect(homePage.form.ISINInput).toBeVisible();
 
-  test.skip('... it should be added to my watch list.', async ({ page }) => {
-    const homePage = new HomePage(page);
-    await homePage.goto();
+      await homePage.form.ISINInput.fill("US0378331005");
+      await expect(homePage.form.ISINInput).toHaveValue("US0378331005");
+      await homePage.form.addButton.click();
 
-    await expect(homePage.header).toContainText("Tradewishes");
-  });
+      await homePage.form.ISINInput.fill("US38259P5089");
+      await expect(homePage.form.ISINInput).toHaveValue("US38259P5089");
+      await homePage.form.addButton.click();
+      // TODO: clean up the form after submission
+      // await expect(homePage.form.ISINInput).toHaveValue("");
+
+      await expect(homePage.watchList.locator('tr')).toHaveCount(2);
+      await expect(homePage.watchList).toContainText("US0378331005");
+      await expect(homePage.watchList).toContainText("US38259P5089");
+    });
 });

@@ -1,3 +1,5 @@
 {
-  "apple": {"subscribe":"IN8212A01012"}
+  "apple": {"subscribe":"IN8212A01012"},
+  "microsoft": {"subscribe":"US5949181045"},
+  "google": {"subscribe":"US38259P5089"}
 }

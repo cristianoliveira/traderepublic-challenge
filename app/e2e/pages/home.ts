@@ -9,7 +9,11 @@ export class HomePage {
   // Form
   readonly form: {
     readonly ISINInput: Locator;
+    readonly addButton: Locator;
   };
+
+  // Watch list
+  readonly watchList: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -19,8 +23,12 @@ export class HomePage {
 
     // Form
     this.form = {
-      ISINInput: page.getByPlaceholder('Enter ISIN')
+      ISINInput: page.getByPlaceholder('Enter ISIN'),
+      addButton: page.locator('button', { hasText: 'Add to Watchlist' }),
     }
+
+    // Get by data-testid="watch-list"
+    this.watchList = page.locator('[data-testid="watch-list"]');
   }
 
   async goto() {
