@@ -2,33 +2,16 @@ import { useRef, useState } from 'preact/hooks'
 import trLogo from './assets/logo.svg'
 import './app.css'
 import { useWatchList, ERRORS } from './hooks/useWatchList'
-
-type WatchItem = {
-  name: string;
-  price: string;
-  percentage: string;
-};
-
-const isinMap: Record<string, WatchItem> = {
-  'US0378331005': {
-    name: 'US0378331005',
-    price: '€1,083.60',
-    percentage: '3.08%',
-  },
-  'US38259P5089': {
-    name: 'US38259P5089',
-    price: '$259.99',
-    percentage: '2.43%',
-  },
-};
+import { useStockLiveStream } from './hooks/useStockLiveStream';
 
 const WatchListItem = ({ isin }: { isin: string }) => {
-  const item = isinMap[isin];
+  const { lastStockState } = useStockLiveStream(isin);
+
   return (
     <tr class="mover">
-      <td class="name">{item.name}</td>
-      <td class="price">{item.price}</td>
-      <td class="percentage">{item.percentage}</td>
+      <td class="name">{isin}</td>
+      <td class="price">{lastStockState?.price}</td>
+      <td class="percentage">{"2.43%"}</td>
     </tr>
   );
 }
@@ -79,7 +62,7 @@ export function App() {
             </thead>
             <tbody data-testid="watch-list">
               {watchList.items.map((isin) => (
-                <WatchListItem key={isin} isin={isin} />
+                <WatchListItem isin={isin} />
               ))}
             </tbody>
           </table>
