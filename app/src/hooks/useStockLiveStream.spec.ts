@@ -2,7 +2,7 @@ import { describe, it, expect, vi, type Mock, assert } from 'vitest';
 import { act, renderHook } from "@testing-library/preact";
 import { StockData, useStockLiveStream } from './useStockLiveStream';
 
-class MockedWebSocket implements Partial<WebSocket> {
+class StubedWebSocket implements Partial<WebSocket> {
   addEventListener: Mock;
   send: Mock;
   close: Mock;
@@ -55,47 +55,47 @@ class TimeoutTestError extends Error {
 describe('useStockLiveStream', () => {
   describe('watching a valid ISIN', () => {
     it('waits for connection before subscribing', () => {
-      const mockSocket = new MockedWebSocket();
+      const stubWebSocket = new StubedWebSocket();
       const validIsin = 'US0378331005';
 
-      const { result } = renderHook(() => useStockLiveStream({ socket: mockSocket as unknown as WebSocket }));
+      const { result } = renderHook(() => useStockLiveStream({ socket: stubWebSocket as unknown as WebSocket }));
 
       expect(result.current?.connectionState).toBe('disconnected');
-      expect(mockSocket.send).not.toHaveBeenCalled();
+      expect(stubWebSocket.send).not.toHaveBeenCalled();
 
-      act(() => mockSocket.triggerOnOpenEvent());
+      act(() => stubWebSocket.triggerOnOpenEvent());
       expect(result.current?.connectionState).toBe('connected');
 
       expect(result.current?.subscribeTo(validIsin, vi.fn())).toBeDefined();
-      expect(mockSocket.send).toHaveBeenCalledWith(JSON.stringify({ subscribe: validIsin }));
+      expect(stubWebSocket.send).toHaveBeenCalledWith(JSON.stringify({ subscribe: validIsin }));
     });
 
     it('subscribe when the connection is open', () => {
       const validIsin = 'US0378331005';
 
-      const mockSocket = new MockedWebSocket();
-      mockSocket.readyState = WebSocket.OPEN;
+      const stubWebSocket = new StubedWebSocket();
+      stubWebSocket.readyState = WebSocket.OPEN;
 
-      const { result } = renderHook(() => useStockLiveStream({ socket: mockSocket as unknown as WebSocket }));
+      const { result } = renderHook(() => useStockLiveStream({ socket: stubWebSocket as unknown as WebSocket }));
 
       expect(result.current?.connectionState).toBe('connected');
       expect(result.current?.subscribeTo(validIsin, vi.fn())).toBeDefined();
-      expect(mockSocket.send).toHaveBeenCalledWith(JSON.stringify({ subscribe: validIsin }));
+      expect(stubWebSocket.send).toHaveBeenCalledWith(JSON.stringify({ subscribe: validIsin }));
     });
 
     it('returns da live data on stock change', async () => {
       const validIsin = 'IN8212A01012';
 
-      const mockSocket = new MockedWebSocket();
-      mockSocket.readyState = WebSocket.OPEN;
+      const stubWebSocket = new StubedWebSocket();
+      stubWebSocket.readyState = WebSocket.OPEN;
 
-      const { result } = renderHook(() => useStockLiveStream({ socket: mockSocket as unknown as WebSocket }));
+      const { result } = renderHook(() => useStockLiveStream({ socket: stubWebSocket as unknown as WebSocket }));
 
       expect(result.current?.connectionState).toBe('connected');
       expect(result.current?.subscribeTo(validIsin, vi.fn())).toBeDefined();
-      expect(mockSocket.send).toHaveBeenCalledWith(JSON.stringify({ subscribe: validIsin }));
+      expect(stubWebSocket.send).toHaveBeenCalledWith(JSON.stringify({ subscribe: validIsin }));
 
-      const waitStockForData = async (isin: string) => {
+      const waitDataForStock = async (isin: string) => {
         return new Promise((resolve, reject) => {
           result.current?.subscribeTo(isin, (data) => {
             resolve(data);
@@ -105,20 +105,20 @@ describe('useStockLiveStream', () => {
       }
 
       const dataAsStr = `{"isin":"IN8212A01012","price":230.1212163887097,"bid":230.11121638870972,"ask":230.1312163887097}`
-      // Simulate parallel async operations
+      // NOTE: This simulate parallel async operations
       const [watchedStockData,] = await Promise.all([
-        waitStockForData("IN8212A01012"), 
-        act(() => mockSocket.triggerOnMessageEvent(dataAsStr))
+        waitDataForStock("IN8212A01012"), 
+        act(() => stubWebSocket.triggerOnMessageEvent(dataAsStr))
       ]) as [StockData | undefined, undefined];
       expect(watchedStockData?.isin).toBe(validIsin);
 
       try {
         await Promise.all([
-          waitStockForData("US0378331005"), 
-          act(() => mockSocket.triggerOnMessageEvent(dataAsStr))
+          waitDataForStock("US0378331005"), 
+          act(() => stubWebSocket.triggerOnMessageEvent(dataAsStr))
         ])
 
-        assert(false, "Should not react to other ISINs");
+        assert(false, "Must not react to non watched stocks");
       } catch (e) {
         expect(e).toBeInstanceOf(TimeoutTestError);
       }
@@ -126,18 +126,18 @@ describe('useStockLiveStream', () => {
   });
 
   it('allows you to check the connection status', () => {
-    const mockSocket = new MockedWebSocket();
-    const { result } = renderHook(() => useStockLiveStream({ socket: mockSocket as unknown as WebSocket }));
+    const stubWebSocket = new StubedWebSocket();
+    const { result } = renderHook(() => useStockLiveStream({ socket: stubWebSocket as unknown as WebSocket }));
 
     expect(result.current?.connectionState).toBe('disconnected');
 
-    act(() => mockSocket.triggerOnOpenEvent());
+    act(() => stubWebSocket.triggerOnOpenEvent());
     expect(result.current?.connectionState).toBe('connected');
 
-    act(() => mockSocket.triggerOnErrorEvent());
+    act(() => stubWebSocket.triggerOnErrorEvent());
     expect(result.current?.connectionState).toBe('connecting');
 
-    act(() => mockSocket.triggerOnCloseEvent());
+    act(() => stubWebSocket.triggerOnCloseEvent());
     expect(result.current?.connectionState).toBe('disconnected');
   });
 
@@ -147,8 +147,8 @@ describe('useStockLiveStream', () => {
     { isin: 'US037833100' },
     { isin: 'US03783310055' },
   ])('thows an error if ISIN is invalid: $isin', ({ isin }) => {
-    const mockSocket = new MockedWebSocket();
-    const { result } = renderHook(() => useStockLiveStream({ socket: mockSocket as unknown as WebSocket }));
+    const stubWebSocket = new StubedWebSocket();
+    const { result } = renderHook(() => useStockLiveStream({ socket: stubWebSocket as unknown as WebSocket }));
 
     expect(() => result.current.subscribeTo(isin, vi.fn())).toThrow();
   });

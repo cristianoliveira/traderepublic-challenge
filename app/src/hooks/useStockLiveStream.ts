@@ -3,9 +3,6 @@ import { validateISIN } from "../modules/isin";
 
 let socketSingleton: WebSocket | null = null;
 export const getConnection = () => {
-  console.log('@@@@@@ socketSingleton: ', socketSingleton);
-  // eslint-disable-next-line 
-  // debugger;
   socketSingleton = socketSingleton || new WebSocket("ws://localhost:8425");
   return socketSingleton;
 }
@@ -28,12 +25,9 @@ type StockLiveStreamHook = (ctx?: StockLiveStreamHookCtx) => StockLiveStream;
 /**
  * Hook to connect to a live stream of a stock
  *
- * @param isin ISIN code
  * @param ctx StockLiveStreamHookCtx
  *
  * @returns StockLiveStream
- *
- * @throws Error if ISIN is invalid
  **/
 export const useStockLiveStream: StockLiveStreamHook = (ctx = { socket: getConnection() }) => {
   const socketRef = useRef(ctx.socket);
@@ -66,6 +60,7 @@ export const useStockLiveStream: StockLiveStreamHook = (ctx = { socket: getConne
 
   return {
     connectionState,
+
     subscribeTo: (isin: string, callback: (data: StockData) => void) => {
       if (connectionState !== 'connected') {
         socketRef.current = getConnection();
@@ -84,6 +79,8 @@ export const useStockLiveStream: StockLiveStreamHook = (ctx = { socket: getConne
           return;
         }
 
+        // NOTE: A small delay for updating the data
+        // it's better for UX to avoid flickering data
         setTimeout(() => callback(data), 500);
       };
 
