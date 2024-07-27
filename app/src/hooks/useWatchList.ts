@@ -22,7 +22,7 @@ type WatchListHook = {
 }
 
 export const useWatchList = (): WatchListHook => {
-  const [items, setItem] = useState<string[]>([]);
+  const [items, setItems] = useState<string[]>([]);
 
   return {
     items,
@@ -32,15 +32,15 @@ export const useWatchList = (): WatchListHook => {
         return 'empty';
       }
 
-      if (items.includes(isin)) {
-        return 'duplicated';
-      }
-
       if (!validateISIN(isin)) {
         return 'invalid';
       }
 
-      setItem((prev) => [...prev, isin])
+      if (items.includes(isin)) {
+        return 'duplicated';
+      }
+
+      setItems((items) => [...items, isin])
 
       return '';
     },
@@ -54,7 +54,7 @@ export const useWatchList = (): WatchListHook => {
         return 'invalid';
       }
 
-      setItem((prev) => prev.filter((item) => item !== isin))
+      setItems((items) => items.filter((item) => item !== isin))
 
       return '';
     },

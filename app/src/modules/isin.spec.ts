@@ -9,7 +9,7 @@ describe("validateISIN", () => {
     ["US037833100", false],
     ["US03783310055", false],
     ["", false],
-  ])("validates ISINs", (isin, expected) => {
+  ])("validates ISINs $0 ", (isin, expected) => {
     expect(validateISIN(isin)).toBe(expected);
   });
 });

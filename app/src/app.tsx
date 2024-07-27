@@ -41,9 +41,7 @@ export function App() {
   const onSubmit = (e: Event) => {
     e.preventDefault()
     const formData = new FormData(e.target as HTMLFormElement);
-
-    const value = formData.get('isin') as string;
-    const error = watchList.add(value)
+    const error = watchList.add(formData.get('isin') as string)
     setError(ERRORS[error])
 
     formRef.current!.reset();

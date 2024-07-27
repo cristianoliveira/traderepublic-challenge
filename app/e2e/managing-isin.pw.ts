@@ -38,7 +38,7 @@ test.describe('The Tradewishes app', () => {
     });
 
   test('As a user, I should not be able to subscribe to the same ISIN twice' +
-       ' so that I don’t get confused by seeing multiple versions of the same stock.' , async ({ page }) => {
+    ' so that I don’t get confused by seeing multiple versions of the same stock.', async ({ page }) => {
       const homePage = new HomePage(page);
       await homePage.goto();
 
@@ -59,27 +59,51 @@ test.describe('The Tradewishes app', () => {
       await expect(homePage.form.errorText).toContainText(ERRORS.duplicated);
     });
 
-  test('As a user, I should not be able to subscribe to an empty or invalid ISIN.' , async ({ page }) => {
+  // TODO: move to its own test file feature live-stream stock performance
+  test('As a user, I should not be able to subscribe to an empty or invalid ISIN.', async ({ page }) => {
+    const homePage = new HomePage(page);
+    await homePage.goto();
+
+    await expect(homePage.header).toContainText("Tradewishes");
+    await expect(homePage.form.ISINInput).toBeVisible();
+
+    await homePage.form.ISINInput.fill("");
+    await homePage.form.addButton.click();
+
+    await expect(homePage.watchListItems).toHaveCount(0);
+    await expect(homePage.form.errorText).toContainText(ERRORS.empty);
+
+    await homePage.form.ISINInput.fill("US037833");
+    await homePage.form.addButton.click();
+    await expect(homePage.form.errorText).toContainText(ERRORS.invalid);
+
+    await homePage.form.ISINInput.fill("US0378331006");
+    await homePage.form.addButton.click();
+    await expect(homePage.form.errorText).toContainText(ERRORS.invalid);
+
+    await expect(homePage.watchListItems).toHaveCount(0);
+  });
+
+
+  test('As a user, I should be able to view a list of my subscribed stocks' +
+    ' displaying the latest stock price received from the WebSocket connection' +
+    ' so that I can keep track of multiple stocks at the same time.', async ({ page }) => {
       const homePage = new HomePage(page);
       await homePage.goto();
 
       await expect(homePage.header).toContainText("Tradewishes");
       await expect(homePage.form.ISINInput).toBeVisible();
 
-      await homePage.form.ISINInput.fill("");
+      await homePage.form.ISINInput.fill("US0378331005");
+      await expect(homePage.form.ISINInput).toHaveValue("US0378331005");
       await homePage.form.addButton.click();
 
-      await expect(homePage.watchListItems).toHaveCount(0);
-      await expect(homePage.form.errorText).toContainText(ERRORS.empty);
-
-      await homePage.form.ISINInput.fill("US037833");
+      await homePage.form.ISINInput.fill("US38259P5089");
+      await expect(homePage.form.ISINInput).toHaveValue("US38259P5089");
       await homePage.form.addButton.click();
-      await expect(homePage.form.errorText).toContainText(ERRORS.invalid);
 
-      await homePage.form.ISINInput.fill("US0378331006");
-      await homePage.form.addButton.click();
-      await expect(homePage.form.errorText).toContainText(ERRORS.invalid);
-
-      await expect(homePage.watchListItems).toHaveCount(0);
+      await expect(homePage.watchListItems).toHaveCount(2);
+      await expect(homePage.watchList).toContainText("US0378331005");
+      await expect(homePage.watchList).toContainText("US38259P5089");
     });
 });
