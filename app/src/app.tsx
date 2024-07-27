@@ -1,11 +1,13 @@
-import { useRef, useState } from 'preact/hooks'
+import { useEffect, useRef, useState } from 'preact/hooks'
 import trLogo from './assets/logo.svg'
 import './app.css'
 import { useWatchList, ERRORS } from './hooks/useWatchList'
-import { useStockLiveStream } from './hooks/useStockLiveStream';
+import { useStockLiveStream, type StockData } from './hooks/useStockLiveStream';
 
 const WatchListItem = ({ isin }: { isin: string }) => {
-  const { lastStockState } = useStockLiveStream(isin);
+  const { subscribeTo } = useStockLiveStream();
+  const [lastStockState, setLastStockState] = useState<StockData | null>(null);
+  useEffect(() => subscribeTo(isin, setLastStockState), [subscribeTo]);
 
   return (
     <tr class="mover">

@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, type Mock } from 'vitest';
+import { describe, it, expect, vi, type Mock, assert } from 'vitest';
 import { act, renderHook } from "@testing-library/preact";
-import { useStockLiveStream } from './useStockLiveStream';
+import { StockData, useStockLiveStream } from './useStockLiveStream';
 
 class MockedWebSocket implements Partial<WebSocket> {
   addEventListener: Mock;
@@ -10,6 +10,8 @@ class MockedWebSocket implements Partial<WebSocket> {
   onmessage: Mock;
   onerror: Mock;
   onclose: Mock;
+
+  private listeners: Array<(event: { data: string }) => void> = [];
 
   readyState: number = WebSocket.CLOSED;
 
@@ -21,6 +23,9 @@ class MockedWebSocket implements Partial<WebSocket> {
     this.onmessage = vi.fn();
     this.onerror = vi.fn();
     this.onclose = vi.fn();
+    this.addEventListener.mockImplementation((_, cb) => {
+      this.listeners.push(cb);
+    });
   }
 
   triggerOnOpenEvent() {
@@ -34,6 +39,17 @@ class MockedWebSocket implements Partial<WebSocket> {
   triggerOnErrorEvent() {
     this.onerror({} as unknown as Event);
   }
+
+  triggerOnMessageEvent(data: string) {
+    this.listeners.forEach((cb) => cb({ data }));
+  }
+}
+
+class TimeoutTestError extends Error {
+  constructor() {
+    super("TimeoutTestError");
+    this.name = "TimeoutTestError";
+  }
 }
 
 describe('useStockLiveStream', () => {
@@ -42,7 +58,7 @@ describe('useStockLiveStream', () => {
       const mockSocket = new MockedWebSocket();
       const validIsin = 'US0378331005';
 
-      const { result } = renderHook(() => useStockLiveStream(validIsin, { socket: mockSocket as unknown as WebSocket }));
+      const { result } = renderHook(() => useStockLiveStream({ socket: mockSocket as unknown as WebSocket }));
 
       expect(result.current?.connectionState).toBe('disconnected');
       expect(mockSocket.send).not.toHaveBeenCalled();
@@ -50,6 +66,7 @@ describe('useStockLiveStream', () => {
       act(() => mockSocket.triggerOnOpenEvent());
       expect(result.current?.connectionState).toBe('connected');
 
+      expect(result.current?.subscribeTo(validIsin, vi.fn())).toBeDefined();
       expect(mockSocket.send).toHaveBeenCalledWith(JSON.stringify({ subscribe: validIsin }));
     });
 
@@ -59,34 +76,58 @@ describe('useStockLiveStream', () => {
       const mockSocket = new MockedWebSocket();
       mockSocket.readyState = WebSocket.OPEN;
 
-      const { result } = renderHook(() => useStockLiveStream(validIsin, { socket: mockSocket as unknown as WebSocket }));
+      const { result } = renderHook(() => useStockLiveStream({ socket: mockSocket as unknown as WebSocket }));
 
       expect(result.current?.connectionState).toBe('connected');
+      expect(result.current?.subscribeTo(validIsin, vi.fn())).toBeDefined();
       expect(mockSocket.send).toHaveBeenCalledWith(JSON.stringify({ subscribe: validIsin }));
     });
 
-    it('returns da live data on stock change', () => {
-      const validIsin = 'US0378331005';
+    it('returns da live data on stock change', async () => {
+      const validIsin = 'IN8212A01012';
 
       const mockSocket = new MockedWebSocket();
       mockSocket.readyState = WebSocket.OPEN;
 
-      const { result } = renderHook(() => useStockLiveStream(validIsin, { socket: mockSocket as unknown as WebSocket }));
+      const { result } = renderHook(() => useStockLiveStream({ socket: mockSocket as unknown as WebSocket }));
 
       expect(result.current?.connectionState).toBe('connected');
+      expect(result.current?.subscribeTo(validIsin, vi.fn())).toBeDefined();
       expect(mockSocket.send).toHaveBeenCalledWith(JSON.stringify({ subscribe: validIsin }));
 
-      const dataAsStr = `{"isin":"IN8212A01012","price":230.1212163887097,"bid":230.11121638870972,"ask":230.1312163887097}`
-      act(() => mockSocket.onmessage({ data: dataAsStr }));
+      const waitStockForData = async (isin: string) => {
+        return new Promise((resolve, reject) => {
+          result.current?.subscribeTo(isin, (data) => {
+            resolve(data);
+          })
+          setTimeout(() => reject(new TimeoutTestError()), 1000);
+        });
+      }
 
-      expect(result.current?.lastStockState).toBeDefined();
+      const dataAsStr = `{"isin":"IN8212A01012","price":230.1212163887097,"bid":230.11121638870972,"ask":230.1312163887097}`
+      // Simulate parallel async operations
+      const [watchedStockData,] = await Promise.all([
+        waitStockForData("IN8212A01012"), 
+        act(() => mockSocket.triggerOnMessageEvent(dataAsStr))
+      ]) as [StockData | undefined, undefined];
+      expect(watchedStockData?.isin).toBe(validIsin);
+
+      try {
+        await Promise.all([
+          waitStockForData("US0378331005"), 
+          act(() => mockSocket.triggerOnMessageEvent(dataAsStr))
+        ])
+
+        assert(false, "Should not react to other ISINs");
+      } catch (e) {
+        expect(e).toBeInstanceOf(TimeoutTestError);
+      }
     });
   });
 
   it('allows you to check the connection status', () => {
     const mockSocket = new MockedWebSocket();
-    const validIsin = 'US0378331005';
-    const { result } = renderHook(() => useStockLiveStream(validIsin, { socket: mockSocket as unknown as WebSocket }));
+    const { result } = renderHook(() => useStockLiveStream({ socket: mockSocket as unknown as WebSocket }));
 
     expect(result.current?.connectionState).toBe('disconnected');
 
@@ -94,7 +135,7 @@ describe('useStockLiveStream', () => {
     expect(result.current?.connectionState).toBe('connected');
 
     act(() => mockSocket.triggerOnErrorEvent());
-    expect(result.current?.connectionState).toBe('errored');
+    expect(result.current?.connectionState).toBe('connecting');
 
     act(() => mockSocket.triggerOnCloseEvent());
     expect(result.current?.connectionState).toBe('disconnected');
@@ -107,6 +148,8 @@ describe('useStockLiveStream', () => {
     { isin: 'US03783310055' },
   ])('thows an error if ISIN is invalid: $isin', ({ isin }) => {
     const mockSocket = new MockedWebSocket();
-    expect(() => renderHook(() => useStockLiveStream(isin, { socket: mockSocket as unknown as WebSocket }))).toThrow();
+    const { result } = renderHook(() => useStockLiveStream({ socket: mockSocket as unknown as WebSocket }));
+
+    expect(() => result.current.subscribeTo(isin, vi.fn())).toThrow();
   });
 });

@@ -90,35 +90,32 @@ test.describe('The Tradewishes app', () => {
       const homePage = new HomePage(page);
       await homePage.goto();
 
-      const events = new Array<any>();
+      let resolver: any = null;
+      let rejector: any = null;
+      const awaitPromiseEvent = (expectedISIN: string) => {
+          const timeoutInstance = setInterval(() => {
+            if (rejector) rejector(new Error(`awaitPromiseEvent timed out waiting for ${expectedISIN}`));
+          }, 20000);
+
+        return new Promise((res, rej) => {
+          rejector = rej;
+          resolver = (evt: any) => {
+            if (evt.isin === expectedISIN) {
+              rejector = null;
+              clearInterval(timeoutInstance);
+              console.debug("resolving for",expectedISIN);
+              res(true);
+            }
+          };
+
+        });
+      }
+
       page.on('websocket', (ws) => {
         ws.on("framereceived", (event) => {
-          events.push(JSON.parse(event.payload as string));
+          resolver(JSON.parse(event.payload as string));
         });
       });
-
-      const awaitEvent = async (isin: string) => {
-        return new Promise((resolve, reject) => {
-          setTimeout(() => {
-            reject(new Error(`Event ${isin} did not fire`));
-          }, 10000);
-
-          setInterval(() => {
-            const found = events.find((event) => {
-              console.log('@@@@@@ event: ', event);
-              const isinEvent = event.isin;
-              console.log('@@@@@@ isin, isinEvent: ', isin, isinEvent);
-              const hasFound = isinEvent === isin;
-              console.log('@@@@@@ hasFound: ', hasFound);
-              return hasFound;
-            });
-            console.log('@@@@@@ ----------------- found: ', found);
-            if (found) {
-              resolve(found);
-            }
-          }, 500);
-        });
-      };
 
       await expect(homePage.header).toContainText("Tradewishes");
       await expect(homePage.form.ISINInput).toBeVisible();
@@ -128,7 +125,7 @@ test.describe('The Tradewishes app', () => {
       await homePage.form.addButton.click();
 
       await expect(homePage.watchList).toContainText("US0378331005");
-      expect(await awaitEvent('US0378331005')).toBeDefined();
+      expect(await awaitPromiseEvent("US0378331005")).toBe(true);
 
       await homePage.form.ISINInput.fill("US38259P5089");
       await expect(homePage.form.ISINInput).toHaveValue("US38259P5089");
@@ -137,9 +134,7 @@ test.describe('The Tradewishes app', () => {
       await expect(homePage.watchListItems).toHaveCount(2);
       await expect(homePage.watchList).toContainText("US38259P5089");
 
-      console.log('@@@@@@ events: ', events);
-      expect(await awaitEvent('US38259P5089')).toBeDefined();
-      // await pageWebSocketEvent('US0378331005');
-      // await pageWebSocketEvent('US38259P5089');
+      await page.waitForTimeout(5000);
+      expect(await awaitPromiseEvent('US38259P5089')).toBe(true);
     });
 });
