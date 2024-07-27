@@ -1,22 +1,8 @@
-import { useEffect, useRef, useState } from 'preact/hooks'
+import { useRef, useState } from 'preact/hooks'
 import trLogo from './assets/logo.svg'
 import './app.css'
 import { useWatchList, ERRORS } from './hooks/useWatchList'
-import { useStockLiveStream, type StockData } from './hooks/useStockLiveStream';
-
-const WatchListItem = ({ isin }: { isin: string }) => {
-  const { subscribeTo } = useStockLiveStream();
-  const [lastStockState, setLastStockState] = useState<StockData | null>(null);
-  useEffect(() => subscribeTo(isin, setLastStockState), [subscribeTo]);
-
-  return (
-    <tr class="mover">
-      <td class="name">{isin}</td>
-      <td class="price">{lastStockState?.price}</td>
-      <td class="percentage">{"2.43%"}</td>
-    </tr>
-  );
-}
+import { WatchList } from './components/WatchList';
 
 export function App() {
   const formRef = useRef<HTMLFormElement>(null)
@@ -54,20 +40,8 @@ export function App() {
           <header>
             <h2>Your watch list</h2>
           </header>
-          <table>
-            <thead>
-              <tr>
-                <th class="name">Name</th>
-                <th class="price">Price</th>
-                <th class="percentage">Diff%</th>
-              </tr>
-            </thead>
-            <tbody data-testid="watch-list">
-              {watchList.items.map((isin) => (
-                <WatchListItem isin={isin} />
-              ))}
-            </tbody>
-          </table>
+
+          <WatchList items={watchList.items}/>
         </div>
       </section>
 
