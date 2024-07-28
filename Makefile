@@ -4,6 +4,8 @@ help: ## Lists the available commands. Add a comment with '##' to describe a com
 		| sort\
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
+# For infra
+
 .PHONY: terraform-version
 terraform-version: ## Setup the right terraform version (Need because MacOS)
 	TFENV_ARCH=amd64 tenv tf install 1.3.3
@@ -34,6 +36,14 @@ terraform-destroy: ## Start terraform destroy
 aws-configure: ## Configure AWS CLI with personal profile
 	aws configure --profile personal
 
+# For deployment
+
 .PHONY: docker-push-image
 docker-push-image: ## Create and push docker image to docker hub
 	scripts/docker-build-image.sh
+
+# Local development
+.PHONY: docker-run
+docker-run: ## Run all services with docker compose
+	docker compose down
+	docker compose up --build --remove-orphans
