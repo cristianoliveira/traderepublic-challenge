@@ -24,7 +24,7 @@
 
             # Infra
             awscli
-            terraform
+            tenv # Terraform env manager (needed for macOs arm64 M1/M2/etc)
           ];
         };
     });

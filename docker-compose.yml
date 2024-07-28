@@ -1,6 +1,10 @@
 services:
   app:
-    build: app
+    image: trdockercris/tradewishes:app-main
+    build: 
+      context: app
+      platforms: 
+        - "linux/amd64"
     environment:
       PORT: "7878"
     ports:
@@ -9,7 +13,11 @@ services:
       - ./app/src:/usr/src/app/src
 
   server:
-    build: server
+    image: trdockercris/tradewishes:server-main
+    build: 
+      context: server
+      platforms: 
+        - "linux/amd64"
     ports:
       - "8425:8425"
     volumes:
