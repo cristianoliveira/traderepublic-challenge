@@ -1,11 +1,11 @@
 {
   # NOTE: If you are not familiar with nix and NIxOS, you can skip this file
   # and just use normal package managers like brew, apt, etc. I just left this
-  # file here to avoid having to install a bunch of packages manually.
+  # file here for me to avoid having to install a bunch of packages manually.
   #
   # If you are interested in learning more about nix, you can check out
   # https://nixos.org/ and https://nixos.wiki/wiki/Nix_Expression_Language
-  # It pair super well with direnv (https://direnv.net/)
+  # It pairs super well with direnv (https://direnv.net/)
   description = "Tradewishes's dev environment";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs";

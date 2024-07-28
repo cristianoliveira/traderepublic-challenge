@@ -13,7 +13,9 @@ export function App() {
       <h1>Tradewishes</h1>
       <p>Keep track of your prefered ISIN performance</p>
 
-      <WatchList />
+      <main>
+        <WatchList />
+      </main>
 
       <footer>
         <p>Contact | Privacy Policy</p>

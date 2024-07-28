@@ -1,0 +1,60 @@
+.watchList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.watchListFormSection {
+  padding: 20px;
+  max-width: 600px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
+}
+
+.watchListForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  & button {
+    padding: 10px;
+    font-size: 16px;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+
+  & input[type="text"] {
+    padding: 10px;
+    font-size: 16px;
+  }
+}
+
+.watchListTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.watchListHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-radius: 4px;
+
+  & > *:first-child {
+    flex-grow: 0.4;
+    text-align: justify;
+  }
+
+  & > * {
+    text-align: right;
+  }
+}
+
+.watchListFormError {
+  font-size: 14px;
+  color: red;
+  opacity: 0.8;
+}

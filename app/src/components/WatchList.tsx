@@ -1,47 +1,9 @@
-import { useEffect, useRef, useState } from "preact/hooks";
-import { StockData, useStockLiveStream } from "../hooks/useStockLiveStream";
+import { useRef, useState } from "preact/hooks";
+import { useStockLiveStream } from "../hooks/useStockLiveStream";
 import { ERRORS, useWatchList } from "../hooks/useWatchList";
+import { WatchListItem } from "./WatchListItem";
 
-const changePercentage = (stock: StockData) => {
-  const change = Number((stock.price - stock.bid).toFixed(2));
-  return Number(((change / stock.bid) * 100).toFixed(2));
-}
-
-export type WatchListItemProps = {
-  isin: string;
-  onUnwatch: () => void;
-  subscribeTo: (isin: string, callback: (stock: StockData) => void) => void;
-}
-
-export const WatchListItem = ({ isin, onUnwatch, subscribeTo }: WatchListItemProps) => {
-  const [stock, setStock] = useState<StockData | null>(null);
-
-  useEffect(() => subscribeTo(isin, setStock), []);
-
-  return (
-    <tr data-testid={`${isin}-item`} class="mover">
-      <td class="name">{isin}</td>
-      {!stock
-        ?
-        <>
-          <td class="price">$x.xx (loading...)</td>
-          <td class="percentage">x.xx% (loading...)</td>
-        </>
-        : <>
-          <td class="price">{`$${stock.price.toFixed(2)}`}</td>
-          <td class="percentage">{`${changePercentage(stock)}%`}</td>
-        </>
-      }
-      <td class="actions">
-        <button
-          title="Unwatch this item"
-          class="unwatch"
-          data-testid={`${isin}-unwatch-btn`}
-          onClick={onUnwatch}>x</button>
-      </td>
-    </tr>
-  );
-}
+import styles from './WatchList.module.css';
 
 export const WatchList = () => {
   const formRef = useRef<HTMLFormElement>(null)
@@ -59,28 +21,30 @@ export const WatchList = () => {
   }
 
   return (
-    <>
-      <main>
-        <form ref={formRef} id="isin-form" onSubmit={onSubmit}>
+    <div className={styles.watchlist}>
+      <section className={styles.watchListFormSection}>
+        <form className={styles.watchListForm} ref={formRef} id="isin-form" onSubmit={onSubmit}>
           <input type="text" name="isin" placeholder="Enter ISIN" />
           <button type="submit">Add to Watchlist</button>
-          {error && <span data-testid="isin-error" class="form-error">{error}</span>}
+          {error && <span data-testid="isin-error" className={styles.watchListFormError}>{error}</span>}
         </form>
-      </main>
+      </section>
 
       <section>
-        <div class="watchlist-table">
-          <div data-testid="connection-status" class="connection-status">
+        <div>
+          <div data-testid="connection-status">
             {connectionState === 'disconnected' && <span class="connection-lost">❌ Connection lost</span>}
             {connectionState === 'connecting' && <span class="connection-connecting">⏳Connecting...</span>}
             {connectionState === 'connected' && <span class="connection-live">✅ Live</span>}
           </div>
+
           <header>
             <h2>Your watch list</h2>
           </header>
-          <table>
+
+          <table className={styles.watchListTable}>
             <thead>
-              <tr class="table-header">
+              <tr className={styles.watchListHeaderRow}>
                 <th class="name">Name</th>
                 <th class="price">Price</th>
                 <th class="percentage">Diff%</th>
@@ -100,6 +64,6 @@ export const WatchList = () => {
           </table>
         </div>
       </section>
-    </>
+    </div>
   )
 };
