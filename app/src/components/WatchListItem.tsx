@@ -21,13 +21,14 @@ export const WatchListItem = ({ isin, onUnwatch, subscribeTo }: WatchListItemPro
 
   return (
     <tr data-testid={`${isin}-item`} className={styles.watchListItem}>
-      <td className="name">{isin}</td>
       {!stock
         ? <>
+          <td className="skeleton skeletonText">`${isin}`</td>
           <td className="skeleton skeletonText">$x.xx</td>
           <td className="skeleton skeletonText">x.xx%</td>
         </>
         : <>
+          <td className="name">{isin}</td>
           <td className="price">{`$${stock.price.toFixed(2)}`}</td>
           <td className="percentage">{`${changePercentage(stock)}%`}</td>
         </>
