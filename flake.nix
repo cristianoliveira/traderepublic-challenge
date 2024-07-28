@@ -7,7 +7,10 @@
   outputs = { self, nixpkgs, utils }: 
     utils.lib.eachDefaultSystem (system:
       let
-        pkgs = import nixpkgs { inherit system; };
+        pkgs = import nixpkgs { 
+          inherit system;
+          config.allowUnfree = true; # For terraform
+        };
       in {
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
@@ -18,6 +21,10 @@
             # Image building 
             docker
             docker-compose
+
+            # Infra
+            awscli
+            terraform
           ];
         };
     });
