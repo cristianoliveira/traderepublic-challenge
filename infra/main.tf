@@ -20,9 +20,9 @@ resource "aws_instance" "tradewishes" {
 # define user_data
 data "template_file" "setup" {
   template = templatefile("./tpls/setup.tpl.sh", {
-    description  = "foo bar"
-    port         = "8080"
-    version      = "0.0.2"
+    description   = "foo bar"
+    port          = "8080"
+    app_image_tag = var.app_image_tag
   })
 }
 

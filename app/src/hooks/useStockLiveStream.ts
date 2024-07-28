@@ -3,7 +3,8 @@ import { validateISIN } from "../modules/isin";
 
 let socketSingleton: WebSocket | null = null;
 export const getConnection = () => {
-  socketSingleton = socketSingleton || new WebSocket("ws://localhost:8425");
+  const wsURL = import.meta.env.VITE_WS_URL || "ws://localhost:8425";
+  socketSingleton = socketSingleton || new WebSocket(`${wsURL}`);
   return socketSingleton;
 }
 

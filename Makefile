@@ -35,6 +35,5 @@ aws-configure: ## Configure AWS CLI with personal profile
 	aws configure --profile personal
 
 .PHONY: docker-push-image
-docker-push-image: ## 
-	docker push trdockercris/tradewishes:app-main
-	docker push trdockercris/tradewishes:server-main
+docker-push-image: ## Create and push docker image to docker hub
+	scripts/docker-build-image.sh

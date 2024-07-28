@@ -8,7 +8,7 @@
 
 set -e # Exit on error
 
-echo "Instance version ${version}"
+echo "Instance version ${app_image_tag}"
 
 sudo apt-get update
 sudo apt-get install ca-certificates curl gnupg -y
@@ -22,45 +22,39 @@ echo \
   "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-# curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-
 # Install docker
 sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
 
-# Install aws cli for accessing ECR images
-# sudo apt-get install unzip  -y
-# unzip awscliv2.zip
-# sudo ./aws/install
-
 sudo chmod 666 /var/run/docker.sock
 
-cd "$HOME"
-echo "HEREIAM" > hereiam.txt
-
-touch creadendial.txt
-echo "ACCESS_KEY_ID=" > creadendial.txt
-# cat < creadendial.txt | docker login --username demo --password-stdin
- 
 # Running the image
 echo "PORT=3000" >> .env
 
-echo "services:
+echo "
+name: tradewishes
+services:
   app:
-    image: trdockercris/tradewishes:app-main
+    image: trdockercris/tradewishes:app-${app_image_tag}
     environment:
-      PORT: "7878"
+      PORT: \"7878\"
     ports:
-      - "80:7878"
+      - \"80:7878\"
 
   server:
-    image: trdockercris/tradewishes:server-main
+    image: trdockercris/tradewishes:server-${app_image_tag}
     ports:
-      - "8080:8425"
+      - \"8080:8425\"
     restart: on-failure
-" > $HOME/docker-compose.yml
+" > "$HOME"/docker-compose.yml
 
 echo "#!/usr/bin/env bash
+
+echo \"Logging in to ECR\"
 docker login
-docker-compose up
-" > $HOME/run.sh
+
+echo \"Running the images\"
+docker compose up
+" > "$HOME"/run.sh
+
+chmod +x "$HOME"/run.sh
