@@ -17,6 +17,8 @@ export class HomePage {
   readonly watchList: Locator;
   readonly watchListItems: Locator;
 
+  readonly connectionStatus: Locator;
+
   constructor(page: Page) {
     this.page = page;
     this.header = page.locator('h1', { hasText: 'Tradewishes' });
@@ -33,6 +35,12 @@ export class HomePage {
     // Get by data-testid="watch-list"
     this.watchList = page.locator('[data-testid="watch-list"]');
     this.watchListItems = this.watchList.locator('tr');
+
+    this.connectionStatus = page.locator('[data-testid="connection-status"] > span');
+  }
+
+  async getItemByISIN(ISIN: string) {
+    return this.page.locator(`[data-testid="${ISIN}-item"]`);
   }
 
   async goto() {

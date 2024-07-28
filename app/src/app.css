@@ -52,11 +52,6 @@ button {
   cursor: pointer;
 }
 
-.top-movers {
-  flex: 3;
-  margin-right: 20px;
-}
-
 .top-movers h2 {
   font-size: 1.5em;
   margin-bottom: 10px;
@@ -72,8 +67,6 @@ table {
   display: flex;
   justify-content: space-between;
   flex: 1;
-
-  width: 100%;
 
   align-items: center;
   padding: 10px;
@@ -96,4 +89,27 @@ table {
 
 .form-error {
   color: red;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.unwatch {
+  width: 24px;
+  height: 24px;
+  padding: 0px;
+  line-height: 1px;
+  border-radius: 100%;
+  text-align: center;
+  vertical-align: middle;
+  border: none;
+  cursor: pointer;
+}
+
+.actions {
+  padding: 0 10px;
 }

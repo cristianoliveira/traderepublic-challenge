@@ -15,7 +15,7 @@ export type StockData = {
 }
 
 export type StockLiveStream = {
-  connectionState: 'connected' | 'disconnected' | 'errored' | 'connecting';
+  connectionState: 'init' | 'connected' | 'disconnected' | 'errored' | 'connecting';
   subscribeTo: (isin: string, callback: (data: StockData) => void) => void;
 }
 
@@ -33,8 +33,7 @@ export const useStockLiveStream: StockLiveStreamHook = (ctx = { socket: getConne
   const socketRef = useRef(ctx.socket);
   const socket = socketRef.current;
 
-  const connectionInitState = socket.readyState === WebSocket.OPEN ? 'connected' : 'disconnected';
-  const [connectionState, setConnectionState] = useState<StockLiveStream["connectionState"]>(connectionInitState);
+  const [connectionState, setConnectionState] = useState<StockLiveStream["connectionState"]>('init');
 
   useEffect(() => {
     socket.onopen = () => {
@@ -55,6 +54,11 @@ export const useStockLiveStream: StockLiveStreamHook = (ctx = { socket: getConne
     if (connectionState === 'errored') {
       socketRef.current = getConnection();
       setConnectionState('connecting');
+    }
+
+    if (connectionState === 'init') {
+      const connectionInitState = socket.readyState === WebSocket.OPEN ? 'connected' : 'disconnected';
+      setConnectionState(connectionInitState);
     }
   }, [connectionState]);
 
@@ -79,9 +83,7 @@ export const useStockLiveStream: StockLiveStreamHook = (ctx = { socket: getConne
           return;
         }
 
-        // NOTE: A small delay for updating the data
-        // it's better for UX to avoid flickering data
-        setTimeout(() => callback(data), 500);
+        callback(data);
       };
 
       socket.addEventListener('message', handler);

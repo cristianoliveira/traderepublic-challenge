@@ -87,15 +87,12 @@ test.describe('The Tradewishes app', () => {
   test('As a user, I should be able to view a list of my subscribed stocks' +
     ' displaying the latest stock price received from the WebSocket connection' +
     ' so that I can keep track of multiple stocks at the same time.', async ({ page }) => {
-      const homePage = new HomePage(page);
-      await homePage.goto();
-
       let resolver: any = null;
       let rejector: any = null;
       const awaitPromiseEvent = (expectedISIN: string) => {
-          const timeoutInstance = setInterval(() => {
-            if (rejector) rejector(new Error(`awaitPromiseEvent timed out waiting for ${expectedISIN}`));
-          }, 20000);
+        const timeoutInstance = setInterval(() => {
+          if (rejector) rejector(new Error(`awaitPromiseEvent timed out waiting for ${expectedISIN}`));
+        }, 20000);
 
         return new Promise((res, rej) => {
           rejector = rej;
@@ -103,7 +100,7 @@ test.describe('The Tradewishes app', () => {
             if (evt.isin === expectedISIN) {
               rejector = null;
               clearInterval(timeoutInstance);
-              console.debug("resolving for",expectedISIN);
+              console.debug("resolving for", expectedISIN);
               res(true);
             }
           };
@@ -113,12 +110,17 @@ test.describe('The Tradewishes app', () => {
 
       page.on('websocket', (ws) => {
         ws.on("framereceived", (event) => {
-          resolver(JSON.parse(event.payload as string));
+          if (resolver) resolver(JSON.parse(event.payload as string));
         });
       });
 
+      const homePage = new HomePage(page);
+      await homePage.goto();
+
       await expect(homePage.header).toContainText("Tradewishes");
       await expect(homePage.form.ISINInput).toBeVisible();
+
+      await expect(homePage.connectionStatus).toContainText("Live");
 
       await homePage.form.ISINInput.fill("US0378331005");
       await expect(homePage.form.ISINInput).toHaveValue("US0378331005");
@@ -134,7 +136,87 @@ test.describe('The Tradewishes app', () => {
       await expect(homePage.watchListItems).toHaveCount(2);
       await expect(homePage.watchList).toContainText("US38259P5089");
 
-      await page.waitForTimeout(5000);
       expect(await awaitPromiseEvent('US38259P5089')).toBe(true);
+    });
+
+  test('As a user, I should be able to unsubscribe from a stock' +
+    ' that’s in my watch list so that I can focus on the stocks I’m interested in.',
+    async ({ page }) => {
+      let resolver: any = null;
+      let rejector: any = null;
+      const awaitPromiseEvent = (expectedISIN: string) => {
+        const timeoutInstance = setInterval(() => {
+          if (rejector) rejector(new Error(`awaitPromiseEvent timed out waiting for ${expectedISIN}`));
+        }, 20000);
+
+        return new Promise((res, rej) => {
+          rejector = rej;
+          resolver = (evt: any) => {
+            if (evt.isin === expectedISIN) {
+              rejector = null;
+              clearInterval(timeoutInstance);
+              console.debug("resolving for", expectedISIN);
+              res(true);
+            }
+          };
+
+        });
+      }
+
+      page.on('websocket', (ws) => {
+        ws.on("framereceived", (event) => {
+          if (resolver) resolver(JSON.parse(event.payload as string));
+        });
+      });
+
+      const homePage = new HomePage(page);
+      await homePage.goto();
+
+      await expect(homePage.header).toContainText("Tradewishes");
+      await expect(homePage.form.ISINInput).toBeVisible();
+
+      await expect(homePage.connectionStatus).toContainText("Live");
+
+      await homePage.form.ISINInput.fill("US0378331005");
+      await expect(homePage.form.ISINInput).toHaveValue("US0378331005");
+      await homePage.form.addButton.click();
+
+      await expect(homePage.watchList).toContainText("US0378331005");
+      expect(await awaitPromiseEvent("US0378331005")).toBe(true);
+
+      await homePage.form.ISINInput.fill("US38259P5089");
+      await expect(homePage.form.ISINInput).toHaveValue("US38259P5089");
+      await homePage.form.addButton.click();
+
+      await expect(homePage.watchListItems).toHaveCount(2);
+      await expect(homePage.watchList).toContainText("US38259P5089");
+
+      expect(await awaitPromiseEvent('US38259P5089')).toBe(true);
+
+      const itemToBeRemoved = await homePage.getItemByISIN("US0378331005")
+      expect(itemToBeRemoved).not.toBeUndefined();
+
+      await itemToBeRemoved.locator('button').click();
+      await expect(homePage.watchListItems).toHaveCount(1);
+    });
+
+  test('As a user, I should be notified if the websocket disconnects and the data'+
+       ' is not up to date so that I know that the price is not accurate.',
+    async ({ page }) => {
+      page.on('websocket', (ws) => {
+        ws.on("framereceived", (event) => {
+          console.log('@@@@@@ event.payload: ', event.payload);
+          const type = JSON.parse(event.payload as string).type;
+        });
+      });
+
+      const homePage = new HomePage(page);
+      await homePage.goto();
+
+      await expect(homePage.header).toContainText("Tradewishes");
+      await expect(homePage.form.ISINInput).toBeVisible();
+
+      await expect(homePage.connectionStatus).toContainText("Live");
+      // FIXME: How to simulate a disconnection?
     });
 });
