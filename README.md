@@ -20,6 +20,8 @@ You find the original README.md as `./OG_README.md`.
  - I choosed to use Docker for local development because since the FE depends on the BE, it's easier to manage them using docker-compose and makes the development environment more consistent and reproduceable. Also it alloe us to generate images during CI/CD that can be pushed to a registry and used to
  deploy the application.
 
+ - (suggestion) The UI for mobile looks good even in wider screens, but I didn't have time to make it responsive for large screens, mostly because I didn't know how to present this data in a nice way, suggestion provide an design to base the implemetation.
+
 ## Answer to the proposed questions
 
 > 1. What happens in case the WebSocket disconnects? How would you go further to keep

@@ -21,7 +21,7 @@ export const WatchList = () => {
   }
 
   return (
-    <div className={styles.watchlist}>
+    <div className={styles.watchList}>
       <section className={styles.watchListFormSection}>
         <form className={styles.watchListForm} ref={formRef} id="isin-form" onSubmit={onSubmit}>
           <input type="text" name="isin" placeholder="Enter ISIN" aria-label="Enter ISIN" />
@@ -30,37 +30,35 @@ export const WatchList = () => {
         </form>
       </section>
 
-      <section>
-        <div>
-          <div data-testid="connection-status">
-            {connectionState === 'disconnected' && <span class="connection-lost">❌ Connection lost</span>}
-            {connectionState === 'connecting' && <span class="connection-connecting">⏳Connecting...</span>}
-            {connectionState === 'connected' && <span class="connection-live">✅ Live</span>}
-          </div>
-
-          <h2>Your watch list</h2>
-
-          <table className={styles.watchListTable}>
-            <thead>
-              <tr className={styles.watchListHeaderRow}>
-                <th class="name">Name</th>
-                <th class="price">Price</th>
-                <th class="percentage">Diff%</th>
-                <th class="actions">▼</th>
-              </tr>
-            </thead>
-            <tbody data-testid="watch-list">
-              {watchList.items.map((isin: string) => (
-                <WatchListItem
-                  key={isin}
-                  isin={isin}
-                  subscribeTo={subscribeTo}
-                  onUnwatch={() => watchList.remove(isin)}
-                />
-              ))}
-            </tbody>
-          </table>
+      <section className={styles.watchListTableSection}>
+        <div data-testid="connection-status">
+          {connectionState === 'disconnected' && <span class="connection-lost">❌ Connection lost</span>}
+          {connectionState === 'connecting' && <span class="connection-connecting">⏳Connecting...</span>}
+          {connectionState === 'connected' && <span class="connection-live">✅ Live</span>}
         </div>
+
+        <h2>Your watch list</h2>
+
+        <table className={styles.watchListTable}>
+          <thead>
+            <tr className={styles.watchListHeaderRow}>
+              <th class="name">Name</th>
+              <th class="price">Price</th>
+              <th class="percentage">Diff%</th>
+              <th class="actions">▼</th>
+            </tr>
+          </thead>
+          <tbody data-testid="watch-list">
+            {watchList.items.map((isin: string) => (
+              <WatchListItem
+                key={isin}
+                isin={isin}
+                subscribeTo={subscribeTo}
+                onUnwatch={() => watchList.remove(isin)}
+              />
+            ))}
+          </tbody>
+        </table>
       </section>
     </div>
   )
