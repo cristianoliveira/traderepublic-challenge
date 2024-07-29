@@ -22,7 +22,7 @@ export class HomePage {
 
   constructor(page: Page) {
     this.page = page;
-    this.header = page.locator('h1', { hasText: 'Tradewishes' });
+    this.header = page.locator('header');
     this.main = page.locator('main');
     this.footer = page.locator('footer');
 

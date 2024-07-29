@@ -24,8 +24,8 @@ export const WatchList = () => {
     <div className={styles.watchlist}>
       <section className={styles.watchListFormSection}>
         <form className={styles.watchListForm} ref={formRef} id="isin-form" onSubmit={onSubmit}>
-          <input type="text" name="isin" placeholder="Enter ISIN" />
-          <button type="submit">Add to Watchlist</button>
+          <input type="text" name="isin" placeholder="Enter ISIN" aria-label="Enter ISIN" />
+          <button type="submit" aria-label="Add to Watchlist">Add to Watchlist</button>
           {error && <span data-testid="isin-error" className={styles.watchListFormError}>{error}</span>}
         </form>
       </section>
@@ -38,9 +38,7 @@ export const WatchList = () => {
             {connectionState === 'connected' && <span class="connection-live">✅ Live</span>}
           </div>
 
-          <header>
-            <h2>Your watch list</h2>
-          </header>
+          <h2>Your watch list</h2>
 
           <table className={styles.watchListTable}>
             <thead>

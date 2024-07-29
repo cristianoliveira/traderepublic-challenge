@@ -5,13 +5,14 @@ import { WatchList } from './components/WatchList';
 export function App() {
   return (
     <>
-      <div>
+      <header>
         <a href="https://traderepublic.com" target="_blank">
           <img src={trLogo} class="logo" alt="Preact logo" />
         </a>
-      </div>
-      <h1>Tradewishes</h1>
-      <p>Keep track of your prefered ISIN performance</p>
+        <h1>Tradewishes</h1>
+        <p>Keep track of your prefered ISIN performance</p>
+      </header>
+
 
       <main>
         <WatchList />
