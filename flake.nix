@@ -19,8 +19,8 @@
           config.allowUnfree = true; # For terraform
         };
       in {
-        devShells.default = pkgs.mkShell {
-          packages = with pkgs; [
+        devShells.default = with pkgs; mkShell {
+          packages =  [
             nodejs_20 # 20
 
             websocat # Websocket client
@@ -32,7 +32,13 @@
             # Infra
             awscli
             tenv # Terraform env manager (needed for macOs arm64 M1/M2/etc)
+
+            playwright
           ];
+
+          shellHook = ''
+            export PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=true
+          '';
         };
     });
 }

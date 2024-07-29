@@ -22,6 +22,8 @@ You find the original README.md as `./OG_README.md`.
 
  - (suggestion) The UI for mobile looks good even in wider screens, but I didn't have time to make it responsive for large screens, mostly because I didn't know how to present this data in a nice way, suggestion provide an design to base the implemetation.
 
+ - I deployed a version of the app to http://tradewishes.cristianoliveira.com if I had more time I'd setup a tls certificate for https and a domain.
+
 ## Answer to the proposed questions
 
 > 1. What happens in case the WebSocket disconnects? How would you go further to keep
